@@ -336,6 +336,9 @@ def render(H, W, focal,
     return ret_list + [ret_dict]
 
 
+'''
+渲染图片
+'''
 def render_path(render_poses, hwf, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0):
 
     H, W, focal = hwf
@@ -353,6 +356,7 @@ def render_path(render_poses, hwf, chunk, render_kwargs, gt_imgs=None, savedir=N
     for i, c2w in enumerate(render_poses):
         print(i, time.time() - t)
         t = time.time()
+        # 渲染
         rgb, disp, acc, _ = render(
             H, W, focal, chunk=chunk, c2w=c2w[:3, :4], **render_kwargs)
         rgbs.append(rgb.numpy())
@@ -645,7 +649,7 @@ def train():
         print('Unknown dataset type', args.dataset_type, 'exiting')
         return
 
-    # Cast intrinsics to right types
+    # Cast intrinsics to right types 将内部函数转换为正确的类型
     H, W, focal = hwf
     H, W = int(H), int(W)
     hwf = [H, W, focal]
@@ -667,7 +671,7 @@ def train():
         with open(f, 'w') as file:
             file.write(open(args.config, 'r').read())
 
-    # Create nerf model
+    # Create nerf model 创建nerf模型
     render_kwargs_train, render_kwargs_test, start, grad_vars, models = create_nerf(
         args)
 
@@ -693,6 +697,7 @@ def train():
         os.makedirs(testsavedir, exist_ok=True)
         print('test poses shape', render_poses.shape)
 
+        # 根据位置输出为rgbs，然后合成为图片、视频
         rgbs, _ = render_path(render_poses, hwf, args.chunk, render_kwargs_test,
                               gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
         print('Done rendering', testsavedir)

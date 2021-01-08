@@ -60,9 +60,12 @@ def _minify(basedir, factors=[], resolutions=[]):
         
         
 def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
-    
+
+    # 20x17 20个位置，20张图，17个参数
     poses_arr = np.load(os.path.join(basedir, 'poses_bounds.npy'))
+    # 除去每组最后两个 20x15，reshape 20x3x5 -> 3x5x20
     poses = poses_arr[:, :-2].reshape([-1, 3, 5]).transpose([1,2,0])
+    # 取每组最后两个，reshape 20x2 -> 2x10
     bds = poses_arr[:, -2:].transpose([1,0])
     
     img0 = [os.path.join(basedir, 'images', f) for f in sorted(os.listdir(os.path.join(basedir, 'images'))) \
@@ -242,7 +245,11 @@ def spherify_poses(poses, bds):
 
 def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=False, path_zflat=False):
     
-
+    '''
+    (args.datadir, args.factor,
+      recenter=True, bd_factor=.75,
+      spherify=args.spherify)
+    '''
     poses, bds, imgs = _load_data(basedir, factor=factor) # factor=8 downsamples original imgs by 8x
     print('Loaded', basedir, bds.min(), bds.max())
     
